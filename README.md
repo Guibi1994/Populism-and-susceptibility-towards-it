@@ -11,3 +11,19 @@ Data sources:
 -   
 
 ![](02_figures/01_idiology_perceptions.png)
+
+## Capítulo VS artículo
+
+| Tema                                                            |       Capítulo       |                    Artículo                     |
+|-----------------------------------------------------------------|:--------------------:|:-----------------------------------------------:|
+| Numero de elecciones presidenciales a evaluar                   |          2           |                        4                        |
+| Incluye elecciones legislativas                                 |          No          |                       Sí                        |
+| Incluye elecciones locales (alcaldes)                           |          No          |                       Sí                        |
+| Incluye plebicito por la paz                                    |          No          |                       Sí                        |
+| Imputaciones ideológicas por Partido-Candidato                  |          Si          |                       Sí                        |
+| Imputaciones ideológicas por Colaición-Apoyos-Partido-Candidato |          No          |                       Si                        |
+| Cambios idelógicos                                              |  Inter-ideológicos   |      Inter-ideológicos e intra-ideológicos      |
+| Cambios territoriales                                           | Inversión, Seguridad | Inversión, Seguridad, Pobreza y Mercado Laboral |
+| Variables geográficas                                           |          No          |                       Sí                        |
+| Modelos espaciales                                              |          No          |                       Sí                        |
+| Controles sintéticos                                            |          No          |                       Sí                        |

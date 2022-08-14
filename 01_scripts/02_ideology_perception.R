@@ -7,27 +7,32 @@ library(grid)
 
 # 1. Cargar ingormación 
 
-a0_raw <- googlesheets4::sheets_read("https://docs.google.com/spreadsheets/d/1GQg_MAML0aS3M-5Wu59Cm1lp6Y_3Y5hgHTdBibQXv5A/edit?usp=sharing")
-
+a1_encuesta <- googlesheets4::sheets_read("https://docs.google.com/spreadsheets/d/1GQg_MAML0aS3M-5Wu59Cm1lp6Y_3Y5hgHTdBibQXv5A/edit?usp=sharing")
+a2_
 
 # 2. Seleccioanr información relevante
 
-a1_partidos <- a0_raw %>% 
-  select(Timestamp, gender = `Género (opcional)`,
-         year_birht = `Año de nacimiento`,
-         edu = `Nivel máximo de estudios alcanzados, o que curse actualmente (ocpcional)`,
-         univ_exp = `Años de experiencia profesional en universidades y centros de pensamiento`,
-         particip = `Seleccione las elecciones para alcalde de Bogotá, en las que ha participado como votante`,
+b1partidos <- a1_encuesta %>% 
+  ## 2.1. Selecionar varibles relevantes
+  select(Timestamp, 
+         respondent_gender = `Género (opcional)`,
+         respondent_year_birth = `Año de nacimiento`,
+         respondent_education_level =  `Nivel máximo de estudios alcanzados, o que curse actualmente (ocpcional)`,
+         respondent_years_academic_jobs = `Años de experiencia profesional en universidades y centros de pensamiento`,
+         respondent_particip_local_elections = `Seleccione las elecciones para alcalde de Bogotá, en las que ha participado como votante`,
          43:58) %>%
-  mutate(across(1:23,~as.character(.))) %>% 
-  mutate(univ_exp = as.numeric(univ_exp),
-         particip = str_count(particip, "Gana"), collapse = NULL)
+  ##
+  mutate(across(1:22,~as.character(.))) %>% 
+  mutate(respondent_years_academic_jobs = as.numeric(respondent_years_academic_jobs),
+         respondent_particip_local_elections =
+           str_count(respondent_particip_local_elections, "Gana"),
+         collapse = NULL)
 
-names(a1_partidos)[8:ncol(a1_partidos)] <- 
-  names(a1_partidos)[8:ncol(a1_partidos)] %>% 
+names(a1_partidos)[7:ncol(a1_partidos)] <- 
+  names(a1_partidos)[7:ncol(a1_partidos)] %>% 
   str_extract(., pattern = "\\[(.*)\\]")
 
- a2_importable
+
 
 
 pr <-  a1_partidos %>%
