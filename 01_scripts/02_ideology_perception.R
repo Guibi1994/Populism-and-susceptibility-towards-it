@@ -5,51 +5,68 @@ library(ggplot2)
 library(stringr)
 library(grid)
 
-# 1. Cargar ingormación 
+
+
+
+# 1. Descaragar encuesta  ----
 
 a1_encuesta <- googlesheets4::sheets_read("https://docs.google.com/spreadsheets/d/1GQg_MAML0aS3M-5Wu59Cm1lp6Y_3Y5hgHTdBibQXv5A/edit?usp=sharing")
-a2_
 
-# 2. Seleccioanr información relevante
 
-b1partidos <- a1_encuesta %>% 
-  ## 2.1. Selecionar varibles relevantes
-  select(Timestamp, 
+# 2. Edicion general de la base de respuestas ----
+
+b1_partidos <- a1_encuesta %>% 
+  ## 2.1. Crear ID por respuesta ----
+  mutate(id_sourvey = row_number()) %>% 
+  ## 2.2. Selecionar varibles relevantes ----
+  select(Timestamp, id_sourvey,id_per = `Cédula (opcional)`,
          respondent_gender = `Género (opcional)`,
-         respondent_year_birth = `Año de nacimiento`,
+         respondent_birth_year = `Año de nacimiento`,
          respondent_education_level =  `Nivel máximo de estudios alcanzados, o que curse actualmente (ocpcional)`,
          respondent_years_academic_jobs = `Años de experiencia profesional en universidades y centros de pensamiento`,
          respondent_particip_local_elections = `Seleccione las elecciones para alcalde de Bogotá, en las que ha participado como votante`,
          43:58) %>%
-  ##
-  mutate(across(1:22,~as.character(.))) %>% 
-  mutate(respondent_years_academic_jobs = as.numeric(respondent_years_academic_jobs),
-         respondent_particip_local_elections =
+  mutate(
+    ## 2.3. Desanidar respuestas compuestas ----
+    across(1:ncol(.),~as.character(.)), 
+    ## 2.4. Cambiar variables a formatos numericos ----
+    respondent_years_academic_jobs = as.integer(respondent_years_academic_jobs),
+    respondent_birth_year = as.integer(respondent_birth_year),
+    ## 2.5. Numero de participaciones en elecciones locales ----
+    respondent_particip_local_elections =
            str_count(respondent_particip_local_elections, "Gana"),
-         collapse = NULL)
+         collapse = NULL,
+    ## 2.6. Identificación de ID's repetidos ----
+    id_per = ifelse(is.na(id_per),id_sourvey, id_per)) %>% 
+  group_by(id_per) %>% mutate(order = row_number()) %>% as.data.frame() %>% 
+  filter(order == 1) %>% arrange(Timestamp) %>% select(-id_per,-order) %>% 
+  ## 2.7. Valores ideológicos
+  mutate(across(8:23, ~as.numeric(str_extract_all(.,"\\d+"))),
+         total = rowSums(across(8:23), na.rm = T)) %>% 
+  ## 2.8. Filtrar sin respuestas e indexar por respuesta ----
+  filter(total != 0, respondent_birth_year > 1920) %>% select(-total) %>% 
+  mutate(id_sourvey = row_number())
 
-names(a1_partidos)[7:ncol(a1_partidos)] <- 
-  names(a1_partidos)[7:ncol(a1_partidos)] %>% 
-  str_extract(., pattern = "\\[(.*)\\]")
+## 2.9. Renombrar varaibles de partidos ----
+names(b1_partidos)[8:ncol(b1_partidos)] <- 
+  names(b1_partidos)[8:ncol(b1_partidos)] %>% 
+  str_extract(.,pattern = "\\[(.*)\\]") %>% 
+  str_remove_all(., "\\(|\\)|\\[|\\]|\\d") %>% 
+  str_remove(., "\\s$")
 
 
+# 4. Transposición de la matriz ideológica ----
+b1_partidos <-  b1_partidos %>%
+  reshape2::melt(id.vars = c("Timestamp","id_sourvey", "respondent_gender","respondent_birth_year",
+                             "respondent_education_level", "respondent_years_academic_jobs",
+                             "respondent_particip_local_elections"),
+                 variable.name = "party",value.name = "idiological_value")  %>% 
+  arrange(id_sourvey, idiological_value)
 
 
-pr <-  a1_partidos %>%
-  
-  reshape2::melt(id.vars = c("Timestamp", "id", "gender", "year_birht", "edu", "univ_exp", "particip"),
-                 variable.name = "partido",value.name = "valor") %>% 
-  mutate(partido =str_replace_all(partido, pattern = "\\[|\\]|\\(|\\)|\\d+",
-                                  replacement = ""),
-         valor = as.numeric(str_extract(valor, "\\d{1,}")),
-         no_valuation = ifelse(is.na(valor),T,F),
-         univ_exp = as.numeric(univ_exp)) %>% 
-  # Categorias de participación
-  mutate(cat_part = case_when(
-    particip == 0~"0 eleciones",
-    particip %in% 1:2~"de 1 a 2 eleciones",
-    T~"mas de 3 elecciones"))
-
+# 3. Exportar la base al github ----
+write.csv(b1_partidos, "00_some_data/01_ideological_sourvey_colombia_2020.csv",
+          row.names = F)
 
 
 
