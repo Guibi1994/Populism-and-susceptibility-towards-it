@@ -14,16 +14,17 @@ Data sources:
 
 ## Capítulo VS artículo
 
-| Tema                                                            |       Capítulo       |                    Artículo                     |
-|-----------------------------------------------------------------|:--------------------:|:-----------------------------------------------:|
-| Numero de elecciones presidenciales a evaluar                   |          2           |                        4                        |
-| Incluye elecciones legislativas                                 |          No          |                       Sí                        |
-| Incluye elecciones locales (alcaldes)                           |          No          |                       Sí                        |
-| Incluye plebicito por la paz                                    |          No          |                       Sí                        |
-| Imputaciones ideológicas por Partido-Candidato                  |          Si          |                       Sí                        |
-| Imputaciones ideológicas por Colaición-Apoyos-Partido-Candidato |          No          |                       Si                        |
-| Cambios idelógicos                                              |  Inter-ideológicos   |      Inter-ideológicos e intra-ideológicos      |
-| Cambios territoriales                                           | Inversión, Seguridad | Inversión, Seguridad, Pobreza y Mercado Laboral |
-| Variables geográficas                                           |          No          |                       Sí                        |
-| Modelos espaciales                                              |          No          |                       Sí                        |
-| Controles sintéticos                                            |          No          |                       Sí                        |
+| Tema                                                            |      Capítulo (2022)      |                 Artículo (2023)                 |
+|-----------------------------------------------------------------|:-------------------------:|:-----------------------------------------------:|
+| Autorias                                                        | Sampayo, Camargo, Londoño |            Londoño, Camargo, Sampayo            |
+| Numero de elecciones presidenciales a evaluar                   |             2             |                        4                        |
+| Incluye elecciones legislativas                                 |            No             |                       Sí                        |
+| Incluye elecciones locales (alcaldes)                           |            No             |                       Sí                        |
+| Incluye plebicito por la paz                                    |            No             |                       Sí                        |
+| Imputaciones ideológicas por Partido-Candidato                  |            Si             |                       Sí                        |
+| Imputaciones ideológicas por Colaición-Apoyos-Partido-Candidato |            No             |                       Si                        |
+| Cambios idelógicos                                              |     Inter-ideológicos     |      Inter-ideológicos e intra-ideológicos      |
+| Cambios territoriales                                           |   Inversión, Seguridad    | Inversión, Seguridad, Pobreza y Mercado Laboral |
+| Variables geográficas                                           |            No             |                       Sí                        |
+| Modelos espaciales                                              |            No             |                       Sí                        |
+| Controles sintéticos                                            |            No             |                       Sí                        |
