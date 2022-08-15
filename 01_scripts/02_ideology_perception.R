@@ -380,8 +380,7 @@ b2_imputaciones %>%
   
   geom_hline(yintercept = c(3,5,7), lty = 2, color ="cyan4", lwd =0.5)+
   
-  labs(x ="", y = "Valor ideológico", color = "",
-       caption = "@GuiborCamargo")+
+  labs(x ="", y = "Valor ideológico", color = "")+
   scale_y_continuous(breaks = scales::pretty_breaks(n = 9))+
   theme_minimal() +
   theme(text = element_text(family = "serif"),
@@ -392,7 +391,7 @@ b2_imputaciones %>%
   annotation_custom(com5)+annotation_custom(com6)+
   annotation_custom(com7)+annotation_custom(com8)
 
-ggsave("02_figures/pruenas.png",h = 6,w = 8)
+ggsave("02_figures/02_presential_ideolgy_evolution.png",h = 6,w = 8)
 } # Varaciones ideológicas temporaless
 
 # 
