@@ -4,7 +4,23 @@ library(googlesheets4)
 library(ggplot2)
 library(stringr)
 library(grid)
-
+`%!in%` = Negate(`%in%`)
+fliping_politics <- function(x1, x2) {
+             case_when(
+               x1 %in% c("right","center-right") & 
+                 x2 %in% c("right","center-right") ~ "stable right",
+               
+               x1 %in% c("left","center-left") & 
+                 x2 %in% c("left","center-left") ~ "stable left",
+               
+               
+               x1 %in% c("right","center-right") & 
+                 x2 %!in% c("right","center-right") ~ "flip to left",
+               
+               x1 %in% c("left","center-left") & 
+                 x2 %!in% c("left","center-left") ~ "flip to right",
+               T~"")
+}
 
 
 
@@ -306,7 +322,7 @@ data.frame(
 
 # 6. Imputaciones ideológicas por candidato ----
 
-
+## 6.1. Base desagregada de valoraciones ----
 b2_imputaciones <- 
   merge(a2_presidenciales, 
         (b1_partidos %>%  select(id_sourvey,parties = party_or_candidate_code, 
@@ -315,12 +331,92 @@ b2_imputaciones <-
   arrange(label)
 
 
+## 6.2. Bsse agregada de valoraciones ----
+c2_resumen_candidato <- b2_imputaciones %>% 
+  group_by(year, candidate_code, candidate_alias, canidate_name) %>% 
+  summarise(idiological_value = mean(idiological_value, na.rm = T),
+            valuations = n()) %>% 
+  as.data.frame() %>% 
+  mutate(ideological_category = 
+           case_when(
+             idiological_value > 7~"right",
+             between(idiological_value,5,7)~"center-right",
+             between(idiological_value,3,5)~"center-left",
+             T~"left")) %>% 
+  rbind(data.frame(
+    "year" = 2022, "candidate_code" = "CP015",
+    "canidate_name" = "Rodolfo Hernández",
+    "candidate_alias" = "R. Hernández","idiological_value" = NA, 
+    "valuations" = 0,"ideological_category"= "center-right")) %>% 
+  arrange(candidate_code)
 
 
 
 
 
- ##### 
+# 7. Cruze con base de resultados electorales ----
+
+## 7.1. Caragar resultados elecotrales por municipio ----
+a3_municipios <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1gDhjT2WLEkZPTrikvXwnaTNqf2g0_Zeiq7AD0fSF_HI/edit?usp=sharing")
+
+
+## 7.2. Transformación final ----
+b3_base_final <- 
+  merge(
+    ### 7.2.1. Primeras vuelta ----
+    (a3_municipios %>% 
+       filter(Round == "First") %>% 
+       select(dane_code, year, candidate_code = place_1st_code) %>% 
+       mutate(year = paste0("first_round_", year)) %>% 
+       merge((c2_resumen_candidato %>% 
+                select(candidate_code,ideological_category))) %>% 
+       select(-candidate_code) %>% 
+       reshape2::dcast(dane_code~year, value.var = "ideological_category")),
+    
+    ### 7.2.2. Segundas vueltas ----
+    (a3_municipios %>% 
+       filter(Round == "Second") %>% 
+       select(dane_code, year, candidate_code = place_1st_code) %>% 
+       mutate(year = paste0("second_round_", year)) %>% 
+       merge((c2_resumen_candidato %>% 
+                select(candidate_code,ideological_category))) %>% 
+       select(-candidate_code) %>% 
+       reshape2::dcast(dane_code~year, value.var = "ideological_category")),
+    by = "dane_code")
+
+
+## 7.3. Calcular flips iter-ideoglógicos ----
+
+b3_base_final <- b3_base_final %>% 
+  mutate(
+    ### 7.3.1. Primera vuelta 2014-2018 ----
+    flip_1st_14_18 = fliping_politics(first_round_2014,first_round_2018),
+    ### 7.3.1. Primera vuelta 2018-2022 ----
+    flip_1st_18_22 = fliping_politics(first_round_2018, first_round_2022),
+    ### 7.3.1. Segunda vuelta 2014-2018 ----
+    flip_2nd_14_18 = fliping_politics(second_round_2014,second_round_2018),
+    ### 7.3.1. Segunda vuelta 2018-2022 ----
+    flip_2nd_18_22 = fliping_politics(second_round_2018,second_round_2022))
+  
+
+
+
+
+table(b3_base_final$flip_1st_14_18)
+table(b3_base_final$flip_1st_18_22)
+table(b3_base_final$flip_2nd_14_18)
+table(b3_base_final$flip_2nd_18_22)
+
+
+write.csv(b3_base_final,
+          "00_some_data/02_political_flips_Colombia_2014_2018.csv",
+          row.names = F)
+
+
+
+
+
+
 {
   
 # Comentarios sobre periodos
